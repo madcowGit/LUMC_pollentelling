@@ -19,6 +19,7 @@ class PollenNotFound(Exception):
 class LUMCPollenClient:
     """
     Lightweight scraper for the LUMC pollen dashboard.
+
     Caches results in memory for a short TTL to avoid excessive requests.
     """
 
@@ -28,12 +29,14 @@ class LUMCPollenClient:
         ttl_seconds: int = 15 * 60,
         timeout: int = 15,
     ):
-        """Initialize the LUMC Pollen client.
+        """
+        Initialize the LUMC Pollen client.
 
         Args:
             base_url: The base URL of the LUMC pollen website
             ttl_seconds: Time to live for cached data in seconds
             timeout: Request timeout in seconds
+
         """
         self.base_url = base_url
         self.ttl = ttl_seconds
