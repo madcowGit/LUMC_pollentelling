@@ -1,16 +1,16 @@
 {
-  "domain": "LUMC_pollentelling",
-  "name": "LUMC Pollentelling",
   "codeowners": [
     "@madcowGit"
   ],
   "config_flow": true,
+  "domain": "LUMC_pollentelling",
   "documentation": "https://github.com/madcowGit/LUMC_pollentelling",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/madcowGit/LUMC_pollentelling/issues",
-  "version": "0.1.0",
+  "name": "LUMC Pollentelling",
   "requirements": [
     "requests>=2.32.3",
     "beautifulsoup4>=4.12.0"
-  ]
+  ],
+  "version": "0.1.0"
 }
