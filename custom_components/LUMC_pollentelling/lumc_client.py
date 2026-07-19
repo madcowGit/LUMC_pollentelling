@@ -4,16 +4,14 @@ from __future__ import annotations
 
 import re
 import time
-from typing import Any, Dict, List
+from typing import Any
 
 import requests
 from bs4 import BeautifulSoup
 
 
-class PollenNotFound(Exception):
+class PollenNotFoundError(Exception):
     """Exception raised when pollen type is not found."""
-
-    pass
 
 
 class LUMCPollenClient:
@@ -28,7 +26,7 @@ class LUMCPollenClient:
         base_url: str = "https://sec.lumc.nl/pollenwebextern/",
         ttl_seconds: int = 15 * 60,
         timeout: int = 15,
-    ):
+    ) -> None:
         """
         Initialize the LUMC Pollen client.
 
@@ -41,7 +39,7 @@ class LUMCPollenClient:
         self.base_url = base_url
         self.ttl = ttl_seconds
         self.timeout = timeout
-        self._cache: Dict[str, Any] = {}
+        self._cache: dict[str, Any] = {}
 
     # --------------- internal helpers ---------------
     def _get_soup(self) -> BeautifulSoup:
@@ -63,7 +61,7 @@ class LUMCPollenClient:
             self._cache.pop(k, None)
         return soup
 
-    def _parse_rows(self) -> List[Dict[str, Any]]:
+    def _parse_rows(self) -> list[dict[str, Any]]:
         """Parse and cache the pollen table rows."""
         cached = self._cache.get("rows")
         if cached:
@@ -74,7 +72,7 @@ class LUMCPollenClient:
         if not table:
             return []
         body = table.find("tbody") or table
-        rows = []
+        rows: list[dict[str, Any]] = []
         for tr in body.find_all("tr"):
             tds = [td.get_text(strip=True) for td in tr.find_all("td")]
             if not tds:
@@ -93,7 +91,7 @@ class LUMCPollenClient:
         self._cache["names"] = [r["name"] for r in rows]
         return rows
 
-    def _graph_links(self) -> List[str]:
+    def _graph_links(self) -> list[str]:
         """Get and cache the graph links."""
         cached = self._cache.get("graph_links")
         if cached:
@@ -113,15 +111,15 @@ class LUMCPollenClient:
         ]
         try:
             return names.index(name.lower())
-        except ValueError:
-            raise PollenNotFound(name)
+        except ValueError as err:
+            raise PollenNotFoundError(name) from err
 
     # --------------- public API ---------------
-    def list_names(self) -> List[str]:
+    def list_names(self) -> list[str]:
         """Get a list of all available pollen types."""
         return [r["name"] for r in self._parse_rows()]
 
-    def get_table(self) -> List[Dict[str, Any]]:
+    def get_table(self) -> list[dict[str, Any]]:
         """Get the full pollen table."""
         return self._parse_rows()
 
@@ -135,12 +133,10 @@ class LUMCPollenClient:
         idx = self._find_name_index(pollen_name)
         links = self._graph_links()
         if idx >= len(links):
-            raise PollenNotFound(pollen_name)
-        url = self.base_url + links[idx]
-        url_png = url.replace(".html", ".png").replace(
+            raise PollenNotFoundError(pollen_name)
+        return self.base_url + links[idx].replace(".html", ".png").replace(
             "PollenGrafiek", "PollenGrafiekImg"
         )
-        return url_png
 
     def get_history_graph_png(self, pollen_name: str) -> bytes:
         """Get the historical graph image as PNG bytes."""

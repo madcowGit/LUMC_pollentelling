@@ -1,6 +1,7 @@
+"""Helpers for scraping pollen values from the LUMC website."""
+
 import logging
 import re
-from typing import Dict
 
 import requests
 from bs4 import BeautifulSoup
@@ -11,20 +12,22 @@ URL = "https://sec.lumc.nl/pollenwebextern/"
 
 
 def fetch_html() -> str | None:
+    """Fetch the pollen page HTML from the LUMC website."""
     try:
         resp = requests.get(URL, timeout=10)
         resp.raise_for_status()
-        return resp.text
-    except Exception as err:
-        _LOGGER.error("Error fetching LUMC HTML: %s", err)
+    except requests.RequestException:
+        _LOGGER.exception("Error fetching LUMC HTML")
         return None
 
+    return resp.text
 
-def extract_pollen_values(html: str) -> Dict[str, int]:
+
+def extract_pollen_values(html: str) -> dict[str, int]:
     """Extract pollen values using the 2nd column as name and 'Totaal' as value."""
     soup = BeautifulSoup(html, "html.parser")
     tables = soup.find_all("table")
-    results: Dict[str, int] = {}
+    results: dict[str, int] = {}
 
     for table in tables:
         rows = table.find_all("tr")
@@ -43,13 +46,19 @@ def extract_pollen_values(html: str) -> Dict[str, int]:
 
         # Find Totaal column
         try:
-            totaal_idx = next(i for i, h in enumerate(header) if "totaal" in h.lower())
+            totaal_idx = next(
+                i for i, h in enumerate(header) if "totaal" in h.lower()
+            )
         except StopIteration:
             continue
 
         name_idx = 1  # ALWAYS use second column
 
-        _LOGGER.debug("Using name column index: %s, totaal index: %s", name_idx, totaal_idx)
+        _LOGGER.debug(
+            "Using name column index: %s, totaal index: %s",
+            name_idx,
+            totaal_idx,
+        )
 
         # Extract rows
         for row in matrix[1:]:

@@ -2,16 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 import logging
+from typing import TYPE_CHECKING, Any
+
 import voluptuous as vol
-
 from homeassistant import config_entries
-from homeassistant.data_entry_flow import FlowResult
 
-from .const import DOMAIN, CONF_CACHE_TTL, DEFAULT_CACHE_TTL
-from .html_scraper import fetch_html, extract_pollen_values
+if TYPE_CHECKING:
+    from homeassistant.data_entry_flow import FlowResult
+
+from .const import CONF_CACHE_TTL, DEFAULT_CACHE_TTL, DOMAIN
+from .html_scraper import extract_pollen_values, fetch_html
 
 _LOGGER = logging.getLogger(__name__)
 

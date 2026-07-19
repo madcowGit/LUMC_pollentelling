@@ -3,17 +3,20 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta
-from typing import Any
+from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING
 
+import requests
 from homeassistant.components.camera import Camera
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+
+if TYPE_CHECKING:
+    from homeassistant.config_entries import ConfigEntry
+    from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import CONF_CACHE_TTL, DOMAIN
-from .lumc_client import LUMCPollenClient, PollenNotFound
+from .lumc_client import LUMCPollenClient, PollenNotFoundError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -37,7 +40,7 @@ async def async_setup_entry(
         for pollen_name in names
     ]
 
-    async_add_entities(cameras, True)
+    async_add_entities(cameras, update_before_add=True)
 
 
 class LumcPollenHistoryCamera(Camera):
@@ -79,7 +82,7 @@ class LumcPollenHistoryCamera(Camera):
 
     async def async_update(self) -> None:
         """Update the cached graph image."""
-        now = datetime.utcnow()
+        now = datetime.now(tz=UTC)
         if self._last_update and now - self._last_update < self._cache_ttl:
             return
 
@@ -87,17 +90,16 @@ class LumcPollenHistoryCamera(Camera):
             image = await self.hass.async_add_executor_job(
                 self._client.get_history_graph_png, self._pollen_name
             )
-        except PollenNotFound:
+        except PollenNotFoundError:
             _LOGGER.warning(
                 "History graph not found for pollen type '%s'", self._pollen_name
             )
             self._image = None
             return
-        except Exception as err:  # pylint: disable=broad-except
-            _LOGGER.error(
-                "Error fetching history graph for '%s': %s",
+        except requests.RequestException:
+            _LOGGER.exception(
+                "Error fetching history graph for '%s'",
                 self._pollen_name,
-                err,
             )
             self._image = None
             return
@@ -107,13 +109,13 @@ class LumcPollenHistoryCamera(Camera):
 
     async def async_camera_image(
         self,
-        width: int | None = None,
-        height: int | None = None,
+        width: int | None = None,  # noqa: ARG002
+        height: int | None = None,  # noqa: ARG002
     ) -> bytes | None:
         """Return image bytes for the camera."""
         if not self._image or (
             self._last_update
-            and datetime.utcnow() - self._last_update >= self._cache_ttl
+            and datetime.now(tz=UTC) - self._last_update >= self._cache_ttl
         ):
             await self.async_update()
         return self._image
