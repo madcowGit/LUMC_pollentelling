@@ -36,7 +36,9 @@ class LumcPollenConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if not html:
             return self.async_abort(reason="cannot_fetch_pollen_types")
 
-        pollen_values = await self.hass.async_add_executor_job(extract_pollen_values, html)
+        pollen_values = await self.hass.async_add_executor_job(
+            extract_pollen_values, html
+        )
         if not pollen_values:
             return self.async_abort(reason="cannot_fetch_pollen_types")
 
@@ -49,4 +51,7 @@ class LumcPollenConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user",
             data_schema=schema,
+            description_placeholders={
+                "documentation_url": "https://github.com/madcowGit/LUMC_pollentelling",
+            },
         )
