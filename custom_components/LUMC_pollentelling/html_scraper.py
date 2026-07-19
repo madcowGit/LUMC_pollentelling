@@ -46,9 +46,7 @@ def extract_pollen_values(html: str) -> dict[str, int]:
 
         # Find Totaal column
         try:
-            totaal_idx = next(
-                i for i, h in enumerate(header) if "totaal" in h.lower()
-            )
+            totaal_idx = next(i for i, h in enumerate(header) if "totaal" in h.lower())
         except StopIteration:
             continue
 
