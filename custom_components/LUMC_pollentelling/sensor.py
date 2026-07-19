@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN, CONF_CACHE_TTL
@@ -59,6 +60,17 @@ class LumcPollenSensor(SensorEntity):
         safe_name = pollen_name.lower().replace(" ", "_")
         self._attr_unique_id = f"{entry_id}_{safe_name}"
         self._attr_name = pollen_name
+        self._attr_entity_registry_enabled_default = pollen_name in {
+            "Grassen",
+            "Els",
+            "Grassen-familie",
+        }
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry_id)},
+            manufacturer="LUMC",
+            model="Pollentelling",
+            name="LUMC Pollentelling",
+        )
 
     @property
     def native_value(self) -> int | None:
@@ -77,7 +89,9 @@ class LumcPollenSensor(SensorEntity):
             _LOGGER.warning("HTML fetch failed during update")
             return
 
-        pollen_values = await self.hass.async_add_executor_job(extract_pollen_values, html)
+        pollen_values = await self.hass.async_add_executor_job(
+            extract_pollen_values, html
+        )
 
         if self._pollen_name in pollen_values:
             value = pollen_values[self._pollen_name]
@@ -85,4 +99,6 @@ class LumcPollenSensor(SensorEntity):
             self._state = value
             self._last_update = now
         else:
-            _LOGGER.warning("Pollen type '%s' missing in latest HTML", self._pollen_name)
+            _LOGGER.warning(
+                "Pollen type '%s' missing in latest HTML", self._pollen_name
+            )

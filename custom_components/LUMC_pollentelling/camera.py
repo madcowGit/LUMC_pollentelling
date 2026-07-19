@@ -9,9 +9,10 @@ from typing import Any
 from homeassistant.components.camera import Camera
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import CONF_CACHE_TTL
+from .const import CONF_CACHE_TTL, DOMAIN
 from .lumc_client import LUMCPollenClient, PollenNotFound
 
 _LOGGER = logging.getLogger(__name__)
@@ -64,6 +65,16 @@ class LumcPollenHistoryCamera(Camera):
         safe_name = pollen_name.lower().replace(" ", "_")
         self._attr_unique_id = f"{entry_id}_{safe_name}_history_graph"
         self._attr_name = f"{pollen_name} History Graph"
+        self._attr_entity_registry_enabled_default = pollen_name in {
+            "Els",
+            "Grassen-familie",
+        }
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry_id)},
+            manufacturer="LUMC",
+            model="Pollentelling",
+            name="LUMC Pollentelling",
+        )
         self.content_type = "image/png"
 
     async def async_update(self) -> None:
