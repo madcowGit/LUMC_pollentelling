@@ -12,9 +12,14 @@ Note: this scraper only extracts the total week amounts
 - Camera platform: exposes a historical graph image per pollen type.
 
 ## Installation
-1. Copy the `LUMC_pollentelling` directory into your Home Assistant `custom_components` folder.
-2. Ensure dependencies from `manifest.json` are installed by Home Assistant (`requests`, `beautifulsoup4`).
-3. Restart Home Assistant and add the integration through the UI (Configuration → Integrations).
+###HACS (as a custom repository)
+In Home Assistant, open HACS → Integrations.
+Click ⋯ (three dots) → Custom repositories.
+Paste https://github.com/madcowGit/LUMC_pollentelling and select Type: Integration, then click Add.
+Back in HACS, search for LUMC (custom component) and click Install.
+Restart Home Assistant when prompted.
+###Manual
+Copy the custom_components/gluetun_cc/ directory into your HA config/custom_components/ and restart.
 
 ## Configuration
 The integration exposes a single option in the config flow:
