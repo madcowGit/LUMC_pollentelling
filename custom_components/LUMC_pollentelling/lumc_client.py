@@ -47,8 +47,7 @@ class LUMCPollenClient:
             ttl_seconds: Time to live for cached data in seconds
             timeout: Request timeout in seconds
 
-        """
-        
+        """        
         self.base_url = base_url
         self.ttl = ttl_seconds
         self.timeout = timeout
