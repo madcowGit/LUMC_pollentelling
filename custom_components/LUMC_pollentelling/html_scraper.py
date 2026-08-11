@@ -58,9 +58,7 @@ def extract_pollen_values(html: str) -> dict[str, int]:
 
         # Find Totaal column
         try:
-            totaal_idx = next(
-                i for i, h in enumerate(header) if "totaal" in h.lower()
-            )
+            totaal_idx = next(i for i, h in enumerate(header) if "totaal" in h.lower())
         except StopIteration:
             continue
 
@@ -83,9 +81,7 @@ def extract_pollen_values(html: str) -> dict[str, int]:
             if not name:
                 continue
 
-            match = re.search(
-                r"(-?\d+)", totaal_text.replace(".", "").replace(",", "")
-            )
+            match = re.search(r"(-?\d+)", totaal_text.replace(".", "").replace(",", ""))
             if not match:
                 continue
 
@@ -97,8 +93,6 @@ def extract_pollen_values(html: str) -> dict[str, int]:
             break
 
     if not results:
-        _LOGGER.warning(
-            "No pollen values found in any table with 2nd-column names"
-        )
+        _LOGGER.warning("No pollen values found in any table with 2nd-column names")
 
     return results
