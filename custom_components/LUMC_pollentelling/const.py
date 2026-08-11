@@ -1,8 +1,8 @@
 """Constants for LUMC Pollentelling."""
 
-from logging import Logger, getLogger
+from logging import getLogger
 
-LOGGER: Logger = getLogger(__package__)
+LOGGER = getLogger(__package__)
 
 DOMAIN = "LUMC_pollentelling"
 CONF_CACHE_TTL = "cache_ttl"
