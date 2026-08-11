@@ -105,7 +105,8 @@ class LUMCPollenClient:
         """Find the index of a pollen type by name (case-insensitive)."""
         names = [
             n.lower()
-            for n in self._cache.get("names") or [r["name"] for r in self._parse_rows()]
+            for n in self._cache.get("names")
+            or [r["name"] for r in self._parse_rows()]
         ]
         try:
             return names.index(name.lower())
