@@ -9,7 +9,6 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/madcowGit/LUMC_pollentelling/issues",
   "requirements": [
-    "requests>=2.32.3",
     "beautifulsoup4>=4.12.0"
   ],
   "version": "0.2.2"
